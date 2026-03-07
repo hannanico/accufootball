@@ -100,7 +100,7 @@ export async function checkMatchResults() {
           .update(selections)
           .set({
             isCorrect: correct,
-            score: correct ? edgeScore : 0,
+            score: correct ? String(edgeScore) : "0",
             updatedAt: new Date(),
           })
           .where(eq(selections.id, row.selectionId));
