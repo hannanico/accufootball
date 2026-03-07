@@ -5,8 +5,10 @@ import { eq } from "drizzle-orm";
 import FeaturedSlider from "@/components/FeaturedSlider";
 import { getLeaderboard } from "@/app/actions/leaderboard";
 
+
 export default async function HomePage() {
   const session = await auth();
+
 
   const upcoming = await db
     .select({
@@ -24,10 +26,12 @@ export default async function HomePage() {
     .orderBy(matches.utcDate)
     .limit(6);
 
+
   const [weekly, monthly] = await Promise.all([
     getLeaderboard(7),
     getLeaderboard(30),
   ]);
+
 
   return (
     <div className="min-h-screen pb-28">
@@ -47,6 +51,44 @@ export default async function HomePage() {
             No upcoming matches right now
           </div>
         )}
+      </div>
+
+      {/* How it works */}
+      <div className="mt-10 px-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-1 h-5 bg-yellow-400 rounded-full" />
+          <h2 className="text-xs font-black text-white uppercase tracking-widest">How it works</h2>
+        </div>
+        <div className="bg-[#111111] border border-[#222222] rounded-2xl p-4 flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-base">🎯</span>
+            <p className="text-[12px] text-gray-400">Predict the result of matches</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-base">🔒</span>
+            <p className="text-[12px] text-gray-400">
+              Predictions lock <span className="text-white font-bold">5 minutes</span> before kickoff
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-base">📊</span>
+            <p className="text-[12px] text-gray-400">
+              <span className="text-green-400 font-bold">Accuracy</span> tracks how often you predict correctly
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-base">⚡</span>
+            <p className="text-[12px] text-gray-400">
+              Your <span className="text-yellow-400 font-bold">Edge</span> score rewards picking upsets — the less likely your pick, the higher the reward
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-base">🏆</span>
+            <p className="text-[12px] text-gray-400">
+              Your <span className="text-white font-bold">Score</span> combines both — climb the leaderboard by being accurate and bold
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Weekly Top */}
@@ -70,6 +112,7 @@ export default async function HomePage() {
   );
 }
 
+
 function LeaderboardTable({ rows }: { rows: Awaited<ReturnType<typeof getLeaderboard>> }) {
   if (rows.length === 0) {
     return (
@@ -87,7 +130,7 @@ function LeaderboardTable({ rows }: { rows: Awaited<ReturnType<typeof getLeaderb
         <span className="text-[10px] text-gray-600 uppercase">Player</span>
         <span className="text-[10px] text-gray-600 uppercase text-center">Acc</span>
         <span className="text-[10px] text-gray-600 uppercase text-center">Edge</span>
-        <span className="text-[10px] text-gray-600 uppercase text-right">Score</span>
+        <span className="text-[10px] text-gray-600 uppercase text-center">Score</span>
       </div>
 
       {rows.map((row, i) => (
@@ -100,11 +143,11 @@ function LeaderboardTable({ rows }: { rows: Awaited<ReturnType<typeof getLeaderb
           </span>
           <div>
             <p className="text-xs font-black text-white uppercase tracking-wide truncate">{row.name}</p>
-            <p className="text-[10px] text-gray-600">{row.total} picks</p>
+            <p className="text-[10px] text-gray-400">{row.total} selections</p>
           </div>
           <span className="text-xs font-black text-green-400 text-center">{row.accuracy}%</span>
           <span className="text-xs font-black text-yellow-400 text-center">{row.edge}x</span>
-          <span className="text-xs font-black text-white text-right">{row.rankScore}</span>
+          <span className="text-xs font-black text-white text-center">{row.rankScore}</span>
         </div>
       ))}
     </div>

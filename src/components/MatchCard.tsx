@@ -31,13 +31,13 @@ export default function MatchCard({
 
   const date = new Date(match.utcDate);
   const dateStr = date.toLocaleDateString("en-GB", {
-    weekday: "short", month: "short", day: "numeric", timeZone: "UTC",
+    weekday: "short", month: "short", day: "numeric",
   });
   const timeStr = date.toLocaleTimeString("en-GB", {
-    hour: "2-digit", minute: "2-digit", timeZone: "UTC",
+    hour: "2-digit", minute: "2-digit",
   });
 
-  // 🔒 Lock 5 minutes before kickoff
+  // Lock 5 minutes before kickoff
   const now = new Date();
   const kickoff = new Date(match.utcDate);
   const minutesUntilKickoff = (kickoff.getTime() - now.getTime()) / 1000 / 60;
@@ -71,8 +71,8 @@ export default function MatchCard({
     }
     const userPicked = selected === value;
     const isWinner = match.winner === value;
-    if (userPicked && isWinner)  return "bg-green-500 text-white";   // ✅ correct
-    if (userPicked && !isWinner) return "bg-red-500 text-white";     // ❌ wrong
+    if (userPicked && isWinner)  return "bg-green-500 text-white";   
+    if (userPicked && !isWinner) return "bg-red-500 text-white";     
     if (!userPicked && isWinner) return "bg-[#2a2a2a] text-green-400 border border-green-600"; // actual result
     return "bg-[#2a2a2a] text-gray-600 border border-[#3a3a3a]";
   }

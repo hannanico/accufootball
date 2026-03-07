@@ -30,7 +30,17 @@ export default async function SelectionsPage() {
     .where(eq(selections.userId, session.user.id))
     .orderBy(matches.utcDate);
 
-  const grouped = userSelections.reduce((acc, s) => {
+    const now = new Date();
+
+  const visibleSelections = userSelections.filter((s) => {
+    const minutesUntilKickoff = (new Date(s.match.utcDate).getTime() - now.getTime()) / 1000 / 60;
+    const isFinished = s.match.status === "FINISHED";
+    const isScheduledOrTimed = s.match.status === "SCHEDULED" || s.match.status === "TIMED";
+    const isLocked = minutesUntilKickoff <= 5 && !isFinished;;
+    return isScheduledOrTimed || isLocked;
+  });
+
+  const grouped = visibleSelections.reduce((acc, s) => {
     const key = s.competitionName;
     if (!acc[key]) acc[key] = { emblem: s.competitionEmblem, competitionId: s.competitionId, items: [] };
     acc[key].items.push(s);
@@ -52,20 +62,20 @@ export default async function SelectionsPage() {
       {userSelections.length > 0 && (
         <div className="flex gap-3 mb-6">
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
-            <p className="text-xl font-black text-yellow-400">{userSelections.length}</p>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Total</p>
+            <p className="text-xl font-black text-yellow-400">{visibleSelections.length}</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">Active</p>
           </div>
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-green-400">
               {userSelections.filter(s => s.isCorrect === true).length}
             </p>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Correct</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">Correct</p>
           </div>
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-red-400">
               {userSelections.filter(s => s.isCorrect === false).length}
             </p>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Wrong</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">Wrong</p>
           </div>
         </div>
       )}

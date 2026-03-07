@@ -51,7 +51,14 @@ const userSelections = session?.user?.id
     userSelections.map((s) => [s.matchId, s.prediction])
   );
 
-  const grouped = filtered.reduce((acc, match) => {
+  const now = new Date();
+
+  const visible = filtered.filter((m) => {
+    const minutesUntilKickoff = (new Date(m.utcDate).getTime() - now.getTime()) / 1000 / 60;
+    return m.status !== "FINISHED" && minutesUntilKickoff > 5;
+  });
+
+  const grouped = visible.reduce((acc, match) => {
     const key = match.matchday;
     if (!acc[key]) acc[key] = [];
     acc[key].push(match);

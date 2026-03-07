@@ -69,7 +69,7 @@ export default async function AccountPage() {
   <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
     <p className="text-3xl font-black text-yellow-400">{edge !== null ? `${edge}x` : "—"}</p>
     <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Edge</p>
-    <p className="text-[9px] text-gray-600 mt-0.5">vs crowd avg</p>
+    <p className="text-[11px] text-gray-400 mt-0">vs crowd avg</p>
   </div>
 </div>
 
@@ -80,7 +80,7 @@ export default async function AccountPage() {
           href="/account/history"
           className="flex items-center justify-between bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl px-5 py-4"
         >
-          <span className="text-s font-black text-white uppercase tracking-wide">Recent Predictions</span>
+          <span className="text-s font-black text-white uppercase tracking-wide">Past Predictions</span>
           <span className="text-yellow-400 text-2xl">›</span>
         </Link>
         <Link
