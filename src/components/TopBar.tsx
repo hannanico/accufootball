@@ -7,39 +7,35 @@ export default async function TopBar() {
 
   return (
     <div className="flex items-center justify-between px-6 py-5 bg-[#111111] border-b border-[#222222]">
-      <div className="ml-1">
-        <HamburgerMenu />
-      </div>
 
-      <h1 className="text-2xl font-black text-yellow-400 tracking-widest">
-        ACCUFOOTBALL
-      </h1>
+  {/* Left */}
+  <div className="w-10">
+    <HamburgerMenu />
+  </div>
 
-      {session ? (
-        <div className="mr-1">
-          <Link
-            href="/account"
-            className="w-11 h-11 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-xl"
-          >
-            {session.user?.name?.charAt(0).toUpperCase()}
-          </Link>
-        </div>
-      ) : (
-        <div className="flex gap-2 mr-1">
-          <Link
-            href="/auth/signin"
-            className="text-xs font-bold text-black bg-yellow-400 px-4 py-2 rounded-lg"
-          >
-            LOGIN
-          </Link>
-          <Link
-            href="/auth/signup"
-            className="text-xs font-bold text-yellow-400 border border-yellow-400 px-4 py-2 rounded-lg"
-          >
-            SIGN UP
-          </Link>
-        </div>
-      )}
-    </div>
+  {/* Center */}
+  <h1 className="text-xl font-black text-yellow-400 tracking-widest">
+    ACCUFOOTBALL
+  </h1>
+
+  {/* Right */}
+  <div className="w-10 flex justify-end">
+    {session ? (
+      <Link
+        href="/account"
+        className="w-9 h-9 rounded-full bg-yellow-400 flex items-center justify-center text-black font-black text-sm"
+      >
+        {session.user?.name?.charAt(0).toUpperCase()}
+      </Link>
+    ) : (
+      <Link
+        href="/auth/signin"
+        className="text-xs font-black text-black bg-yellow-400 px-3 py-2 rounded-lg"
+      >
+        LOGIN
+      </Link>
+    )}
+  </div>
+</div>
   );
 }

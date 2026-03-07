@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { auth } from "@/auth";
 import SessionProvider from "@/components/SessionProvider";
 import TopBar from "@/components/TopBar";
+export const dynamic = "force-dynamic";
 
 const geist = Geist({ subsets: ["latin"] });
 
