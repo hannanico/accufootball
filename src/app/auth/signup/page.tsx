@@ -24,7 +24,7 @@ export default function SignUpPage() {
     if (res?.error) {
       setError("Email already registered. Try signing in.");
     } else {
-      router.push("/");
+      window.location.href = "/";
     }
   }
 
