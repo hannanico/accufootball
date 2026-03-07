@@ -1,4 +1,5 @@
 import { pgTable, integer, text, timestamp, uuid, boolean } from "drizzle-orm/pg-core";
+import { numeric } from "drizzle-orm/pg-core";
 
 export const competitions = pgTable("competitions", {
   id: integer("id").primaryKey(),
@@ -44,8 +45,9 @@ export const selections = pgTable("selections", {
   userId: uuid("user_id").references(() => users.id).notNull(),
   matchId: integer("match_id").references(() => matches.id).notNull(),
   competitionId: integer("competition_id").references(() => competitions.id).notNull(),
-  prediction: text("prediction").notNull(),  // HOME_TEAM | DRAW | AWAY_TEAM
-  isCorrect: boolean("is_correct"),          // null until match FINISHED
+  prediction: text("prediction").notNull(),
+  isCorrect: boolean("is_correct"),
+  score: numeric("score", { precision: 10, scale: 4 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

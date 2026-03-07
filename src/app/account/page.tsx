@@ -16,11 +16,15 @@ export default async function AccountPage() {
     .where(eq(selections.userId, session.user.id));
 
   const total = userSelections.length;
-  const correct = userSelections.filter((s) => s.isCorrect === true).length;
   const pending = userSelections.filter((s) => s.isCorrect === null).length;
-  const resolved = total - pending;
-  const accuracy = resolved > 0 ? Math.round((correct / resolved) * 100) : null;
+  const resolved = userSelections.filter(s => s.isCorrect !== null);
+  const correct = resolved.filter(s => s.isCorrect === true).length;
+  const accuracy = resolved.length > 0 ? Math.round((correct / resolved.length) * 100) : null;
 
+  const totalEdge = resolved
+    .filter(s => s.isCorrect === true)
+    .reduce((sum, s) => sum + Number(s.score ?? 0), 0);
+  const edge = correct > 0 ? Math.round((totalEdge / correct) * 10) / 10 : null;
 
   return (
     <div className="px-5 py-6 pb-28">
@@ -48,28 +52,37 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
-          <p className="text-3xl font-black text-yellow-400">{total}</p>
-          <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Total Picks</p>
-        </div>
-        <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
-          <p className="text-3xl font-black text-green-400">{correct}</p>
-          <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Correct</p>
-        </div>
-        <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
-          <p className="text-3xl font-black text-gray-400">{pending}</p>
-          <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Pending</p>
-        </div>
-        <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
-          <p className="text-3xl font-black text-yellow-400">{accuracy !== null ? `${accuracy}%` : "—"}</p>
-          <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Accuracy</p>
-        </div>
-      </div>
+     {/* Stats grid */}
+<div className="grid grid-cols-2 gap-3 mb-4">
+  <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
+    <p className="text-3xl font-black text-yellow-400">{total}</p>
+    <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Total Picks</p>
+  </div>
+  <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
+    <p className="text-3xl font-black text-green-400">{correct}</p>
+    <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Correct</p>
+  </div>
+  <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
+    <p className="text-3xl font-black text-yellow-400">{accuracy !== null ? `${accuracy}%` : "—"}</p>
+    <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Accuracy</p>
+  </div>
+  <div className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 text-center">
+    <p className="text-3xl font-black text-yellow-400">{edge !== null ? `${edge}x` : "—"}</p>
+    <p className="text-[11px] text-gray-400 uppercase tracking-wider mt-1">Edge</p>
+    <p className="text-[9px] text-gray-600 mt-0.5">vs crowd avg</p>
+  </div>
+</div>
 
-      {/* Quick links */}
+
+     {/* Quick links */}
       <div className="flex flex-col gap-2 mb-6">
+        <Link
+          href="/account/history"
+          className="flex items-center justify-between bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl px-5 py-4"
+        >
+          <span className="text-s font-black text-white uppercase tracking-wide">Recent Predictions</span>
+          <span className="text-yellow-400 text-2xl">›</span>
+        </Link>
         <Link
           href="/selections"
           className="flex items-center justify-between bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl px-5 py-4"
