@@ -63,13 +63,8 @@ export async function syncCompetitionMatches(competitionId: number): Promise<num
 
 export async function syncFinishedMatches(competitionId: number): Promise<void> {
   try {
-    // Only fetch finished matches from the last 3 months
-    const dateFrom = new Date();
-    dateFrom.setMonth(dateFrom.getMonth() - 3);
-    const dateFromStr = dateFrom.toISOString().slice(0, 10); // "YYYY-MM-DD"
-
     const res = await fetch(
-      `https://api.football-data.org/v4/competitions/${competitionId}/matches?status=LIVE,FINISHED&dateFrom=${dateFromStr}`,
+      `https://api.football-data.org/v4/competitions/${competitionId}/matches?status=LIVE,FINISHED`, // 👈 removed dateFrom/dateTo
       {
         headers: { "X-Auth-Token": process.env.FOOTBALL_API_KEY! },
         cache: "no-store",
