@@ -2,8 +2,10 @@ import { db } from "@/db";
 import { competitions } from "@/db/schema";
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 export default async function LeaguesPage() {
+  const t = await getTranslations("leagues");
   const leagues = await db.select().from(competitions);
 
   return (
@@ -13,7 +15,7 @@ export default async function LeaguesPage() {
       <div className="flex items-center gap-3 mb-5">
         <div className="w-1 h-6 bg-yellow-400 rounded-full" />
         <h1 className="text-m font-black text-white uppercase tracking-widest">
-          Pick a League
+          {t("title")}
         </h1>
       </div>
 
@@ -25,17 +27,17 @@ export default async function LeaguesPage() {
             href={`/leagues/${league.id}`}
             className="flex items-center gap-4 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-4 active:scale-95 transition-all hover:border-yellow-400"
           >
-      {/* Logo */}
-      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 p-2">
-            <div className="w-full h-full relative">
-              <Image
-                src={league.emblemUrl}
-                alt={league.name}
-                fill
-                className="object-contain"
-              />
+            {/* Logo */}
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shrink-0 p-2">
+              <div className="w-full h-full relative">
+                <Image
+                  src={league.emblemUrl}
+                  alt={league.name}
+                  fill
+                  className="object-contain"
+                />
+              </div>
             </div>
-          </div>      
 
             {/* Text */}
             <div className="flex-1">

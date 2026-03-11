@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import MatchCard from "@/components/MatchCard";
 import { checkMatchResults } from "@/app/actions/selections";
 import LeagueFilter from "@/components/LeagueFilter";
+import { getTranslations } from "next-intl/server";
 
 export default async function SelectionsPage({
   searchParams,
@@ -16,6 +17,10 @@ export default async function SelectionsPage({
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/auth/signin");
+
+  const t = await getTranslations("selections");
+  const { league } = await searchParams;
+  const activeLeague = league ?? null;
 
   await checkMatchResults();
 
@@ -45,7 +50,6 @@ export default async function SelectionsPage({
     return isScheduledOrTimed || isLocked;
   });
 
-  // Extract unique leagues from visible selections
   const leagues = Object.values(
     visibleSelections.reduce((acc, s) => {
       if (!acc[s.competitionId])
@@ -53,9 +57,6 @@ export default async function SelectionsPage({
       return acc;
     }, {} as Record<number, { id: number; name: string; emblem: string }>)
   );
-
-  const { league } = await searchParams;
-  const activeLeague = league ?? null;
 
   const grouped = visibleSelections
     .filter((s) => !activeLeague || s.competitionName === activeLeague)
@@ -73,13 +74,13 @@ export default async function SelectionsPage({
       <div className="flex items-center gap-3 mb-6">
         <div className="w-1 h-6 bg-yellow-400 rounded-full" />
         <h1 className="text-s font-black text-white uppercase tracking-widest">
-          My Selections
+          {t("title")}
         </h1>
         <Link
           href="/account/history"
           className="ml-auto text-[13px] font-black uppercase tracking-widest text-yellow-400 border border-yellow-400 rounded-lg px-3 py-1.5"
         >
-          Past Predictions
+          {t("past")}
         </Link>
       </div>
 
@@ -88,46 +89,43 @@ export default async function SelectionsPage({
         <div className="flex gap-3 mb-6">
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">{visibleSelections.length}</p>
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">Active</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">{t("active")}</p>
           </div>
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-green-400">
               {userSelections.filter(s => s.isCorrect === true).length}
             </p>
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">Correct</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">{t("correct")}</p>
           </div>
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-red-400">
               {userSelections.filter(s => s.isCorrect === false).length}
             </p>
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">Wrong</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-wider mt-0.5">{t("wrong")}</p>
           </div>
         </div>
       )}
 
-      {/* League filter — only if more than 1 league */}
+      {/* League filter */}
       {leagues.length > 1 && <LeagueFilter leagues={leagues} />}
 
       {/* Empty state */}
       {userSelections.length === 0 ? (
         <div className="text-center mt-24">
           <p className="text-4xl mb-4">📋</p>
-          <p className="text-white font-black uppercase tracking-wide mb-2">No selections yet</p>
-          <p className="text-gray-500 text-sm mb-6">Start predicting match results!</p>
+          <p className="text-white font-black uppercase tracking-wide mb-2">{t("noSelections")}</p>
+          <p className="text-gray-500 text-sm mb-6">{t("noSelectionsHint")}</p>
           <Link
             href="/leagues"
             className="bg-yellow-400 text-black font-black px-8 py-3 rounded-xl text-xs uppercase tracking-widest"
           >
-            Pick Matches
+            {t("pickMatches")}
           </Link>
         </div>
       ) : (
         Object.entries(grouped).map(([competitionName, { emblem, competitionId, items }]) => (
           <div key={competitionName} className="mb-8">
-            <Link
-              href={`/leagues/${competitionId}`}
-              className="flex items-center gap-3 mb-3"
-            >
+            <Link href={`/leagues/${competitionId}`} className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1.5 shrink-0">
                 <div className="w-full h-full relative">
                   <Image src={emblem} alt={competitionName} fill className="object-contain" />

@@ -2,16 +2,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Trophy, BookmarkCheck, User } from "lucide-react";
-
-const links = [
-  { href: "/",           label: "Home",       icon: Home },
-  { href: "/leagues",    label: "Leagues",    icon: Trophy },
-  { href: "/selections", label: "Selections", icon: BookmarkCheck },
-  { href: "/account",    label: "Account",    icon: User },
-];
+import { useTranslations } from "next-intl";
 
 export default function Navbar() {
+  const t = useTranslations("nav");
   const pathname = usePathname();
+
+  const links = [
+    { href: "/",           label: t("home"),       icon: Home },
+    { href: "/leagues",    label: t("leagues"),    icon: Trophy },
+    { href: "/selections", label: t("selections"), icon: BookmarkCheck },
+    { href: "/account",    label: t("account"),    icon: User },
+  ];
+
   return (
     <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-120 bg-[#1a1a1a] border-t border-[#2a2a2a] flex items-center h-16 z-50">
       {links.map(({ href, label, icon: Icon }) => {

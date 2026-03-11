@@ -2,17 +2,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const navItems = [
-  { href: "/", label: "HOME", icon: "⚽" },
-  { href: "/leagues", label: "LEAGUES", icon: "🏆" },
-  { href: "/selections", label: "MY SELECTIONS", icon: "📋" },
-  { href: "/account", label: "ACCOUNT", icon: "👤" },
-];
+import { useTranslations } from "next-intl";
 
 export default function HamburgerMenu() {
+  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+
+  const navItems = [
+    { href: "/",           label: t("home"),       icon: "⚽" },
+    { href: "/leagues",    label: t("leagues"),    icon: "🏆" },
+    { href: "/selections", label: t("selections"), icon: "📋" },
+    { href: "/account",    label: t("account"),    icon: "👤" },
+  ];
 
   return (
     <>

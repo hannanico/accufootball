@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 
 type Match = {
   id: number;
@@ -15,11 +16,12 @@ type Match = {
 };
 
 export default function FeaturedSlider({ matches }: { matches: Match[] }) {
+  const t = useTranslations("home");
+  const locale = useLocale(); // 👈
   const [current, setCurrent] = useState(0);
   const router = useRouter();
   const featured = matches.slice(0, 4);
 
-  // Swipe handling
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
@@ -36,10 +38,8 @@ export default function FeaturedSlider({ matches }: { matches: Match[] }) {
     const diff = touchStartX.current - touchEndX.current;
     if (Math.abs(diff) > 50) {
       if (diff > 0) {
-        // swiped left → next
         setCurrent((prev) => (prev + 1) % featured.length);
       } else {
-        // swiped right → prev
         setCurrent((prev) => (prev - 1 + featured.length) % featured.length);
       }
     }
@@ -49,22 +49,21 @@ export default function FeaturedSlider({ matches }: { matches: Match[] }) {
 
   return (
     <div className="relative">
-      {/* Card */}
       <div
         className="bg-[#1c1c1c] border border-[#3a3a3a] rounded-2xl overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Top content with padding */}
         <div className="px-8 pt-6 pb-6">
 
           {/* Date bar */}
           <div className="text-center mb-5">
             <span className="text-s font-bold text-yellow-400 tracking-widest uppercase">
-              {new Date(featured[current].utcDate).toLocaleDateString("en-GB", {
-                weekday: "long", month: "short", day: "numeric", timeZone: "UTC",
-              })}
+              {new Date(featured[current].utcDate).toLocaleDateString(
+                locale === "es" ? "es-ES" : "en-GB", // 👈
+                { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" }
+              )}
             </span>
           </div>
 
@@ -88,8 +87,8 @@ export default function FeaturedSlider({ matches }: { matches: Match[] }) {
             {/* VS */}
             <div className="flex flex-col items-center gap-2">
               <span className="text-5xl font-black text-yellow-400">VS</span>
-              <span className="text-[15px] text-gray-400 uppercase tracking-widest">
-                Match Day
+              <span className="text-[15px] text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                {t("matchDay")}
               </span>
             </div>
 
@@ -110,16 +109,15 @@ export default function FeaturedSlider({ matches }: { matches: Match[] }) {
           </div>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-[#3a3a3a]" />
 
         {/* Button area */}
         <div className="flex justify-center px-3 py-3">
           <button
             onClick={() => router.push(`/leagues/${featured[current].leagueId}`)}
-            className="w-2/3 py-2 bg-yellow-400 text-black text-[18px] font-black uppercase tracking-widest rounded-xl hover:bg-yellow-300 transition-colors"
+            className="w-2/3 py-2 bg-yellow-400 text-black text-[15px] font-black uppercase tracking-widest rounded-xl hover:bg-yellow-300 transition-colors"
           >
-            Make Prediction
+            {t("makePrediction")}
           </button>
         </div>
       </div>

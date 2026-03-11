@@ -1,13 +1,14 @@
-// components/LeagueFilter.tsx
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface Props {
   leagues: { id: number; name: string; emblem: string }[];
 }
 
 export default function LeagueFilter({ leagues }: Props) {
+  const t = useTranslations("selections");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -30,7 +31,7 @@ export default function LeagueFilter({ leagues }: Props) {
             : "text-gray-400 border-[#3a3a3a]"
         }`}
       >
-        All
+        {t("all")}
       </button>
       {leagues.map((l) => (
         <button

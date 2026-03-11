@@ -5,6 +5,7 @@ import Image from "next/image";
 import MatchCard from "@/components/MatchCard";
 import { syncCompetitionMatches } from "@/lib/syncMatches";
 import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 
 export default async function LeagueMatchesPage({
   params,
@@ -13,6 +14,7 @@ export default async function LeagueMatchesPage({
 }) {
   const { id } = await params;
   const competitionId = parseInt(id);
+  const t = await getTranslations("leagues");
 
   const currentMatchday = await syncCompetitionMatches(competitionId);
 
@@ -33,19 +35,18 @@ export default async function LeagueMatchesPage({
       )
     : leagueMatches;
 
-    // Get user's existing selections for this league
-const session = await auth();
-const userSelections = session?.user?.id
-  ? await db
-      .select()
-      .from(selections)
-      .where(
-        and(
-          eq(selections.userId, session.user.id),
-          eq(selections.competitionId, competitionId)
+  const session = await auth();
+  const userSelections = session?.user?.id
+    ? await db
+        .select()
+        .from(selections)
+        .where(
+          and(
+            eq(selections.userId, session.user.id),
+            eq(selections.competitionId, competitionId)
+          )
         )
-      )
-  : [];
+    : [];
 
   const selectionMap = Object.fromEntries(
     userSelections.map((s) => [s.matchId, s.prediction])
@@ -67,7 +68,7 @@ const userSelections = session?.user?.id
 
   const matchdays = Object.keys(grouped).map(Number).sort((a, b) => a - b);
 
-    return (
+  return (
     <div className="px-5 py-6 pb-28">
 
       {/* League header */}
@@ -86,15 +87,14 @@ const userSelections = session?.user?.id
       </div>
 
       {matchdays.length === 0 ? (
-        <p className="text-gray-500 text-center mt-10 text-m">No upcoming matches found.</p>
+        <p className="text-gray-500 text-center mt-10 text-m">{t("noMatches")}</p>
       ) : (
         matchdays.map((matchday) => (
           <div key={matchday} className="mb-8">
-            {/* Matchday header */}
             <div className="flex items-center gap-3 mb-3">
               <div className="w-1 h-5 bg-yellow-400 rounded-full" />
               <h2 className="text-s font-black text-white uppercase tracking-widest">
-                Matchday {matchday}
+                {t("matchday")} {matchday}  {/* 👈 */}
               </h2>
             </div>
 

@@ -8,6 +8,7 @@ import Link from "next/link";
 import MatchCard from "@/components/MatchCard";
 import { checkMatchResults } from "@/app/actions/selections";
 import LeagueFilter from "@/components/LeagueFilter";
+import { getTranslations } from "next-intl/server";
 
 export default async function HistoryPage({
   searchParams,
@@ -17,6 +18,7 @@ export default async function HistoryPage({
   const session = await auth();
   if (!session?.user?.id) redirect("/auth/signin");
 
+  const t = await getTranslations("history");
   const { league } = await searchParams;
   const activeLeague = league ?? null;
 
@@ -47,7 +49,6 @@ export default async function HistoryPage({
     )
     .orderBy(matches.utcDate);
 
-  // Extract unique leagues
   const leagues = Object.values(
     history.reduce((acc, s) => {
       if (!acc[s.competitionId])
@@ -76,45 +77,45 @@ export default async function HistoryPage({
       <div className="flex items-center gap-3 mb-6">
         <div className="w-1 h-6 bg-yellow-400 rounded-full" />
         <h1 className="text-s font-black text-white uppercase tracking-widest">
-          Past Predictions
+          {t("title")}
         </h1>
         <Link
           href="/selections"
           className="ml-auto text-[13px] font-black uppercase tracking-widest text-yellow-400 border border-yellow-400 rounded-lg px-3 py-1.5"
         >
-          My Selections
+          {t("mySelections")}
         </Link>
       </div>
 
-      {/* Stats bar — always reflects all history, not filtered */}
+      {/* Stats bar */}
       {total > 0 && (
         <div className="flex gap-3 mb-6">
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">{total}</p>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Resolved</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">{t("resolved")}</p>
           </div>
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-green-400">{correct}</p>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Correct</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">{t("correct")}</p>
           </div>
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
             <p className="text-xl font-black text-yellow-400">
               {accuracy !== null ? `${accuracy}%` : "—"}
             </p>
-            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">Accuracy</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider mt-0.5">{t("accuracy")}</p>
           </div>
         </div>
       )}
 
-      {/* League filter — only if more than 1 league */}
+      {/* League filter */}
       {leagues.length > 1 && <LeagueFilter leagues={leagues} />}
 
       {/* Empty state */}
       {total === 0 ? (
         <div className="text-center mt-24">
           <p className="text-4xl mb-4">📭</p>
-          <p className="text-white font-black uppercase tracking-wide mb-2">No finished matches yet</p>
-          <p className="text-gray-500 text-sm">Check back after your predicted games finish.</p>
+          <p className="text-white font-black uppercase tracking-wide mb-2">{t("noFinished")}</p>
+          <p className="text-gray-500 text-sm">{t("noFinishedHint")}</p>
         </div>
       ) : (
         Object.entries(grouped).map(([competitionName, { emblem, competitionId, items }]) => (

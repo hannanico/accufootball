@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "leagues": "Ligas",
+    "selections": "Selecciones",
+    "account": "Cuenta"
+  },
+  "home": {
+    "matchDay": "Día de Partido",
+    "makePrediction": "Hacer Predicción",
+    "featuredMatches": "Partidos Destacados",
+    "noUpcoming": "Sin partidos próximos ahora mismo",
+    "howItWorks": "Cómo funciona",
+    "how1": "Predice el resultado de los partidos",
+    "how2lock": "5 minutos",
+    "how2prefix": "Las predicciones se bloquean",
+    "how2suffix": "antes del inicio",
+    "how3label": "Precisión",
+    "how3": "registra qué tan seguido predices correctamente",
+    "how4label": "Edge",
+    "how4prefix": "Tu puntuación",
+    "how4suffix": "premia elegir sorpresas — cuanto menos probable, mayor la recompensa",
+    "how5label": "Puntaje",
+    "how5prefix": "Tu",
+    "how5suffix": "combina ambos — sube en el ranking siendo preciso y audaz",
+    "weeklyTop": "Top Semanal",
+    "monthlyTop": "Top Mensual",
+    "rankingSoon": "Rankings próximamente — necesitas 10+ selecciones resueltas para aparecer",
+    "selections": "selecciones",
+    "player": "Jugador",
+    "acc": "Prec",
+    "edge": "Edge",
+    "score": "Puntaje",
+    "vsCrowdAvg": "vs promedio"
+  },
+  "selections": {
+    "title": "Mis Picks",
+    "past": "Predicciones Pasadas",
+    "active": "Activas",
+    "correct": "Correctas",
+    "wrong": "Incorrectas",
+    "noSelections": "Sin selecciones aún",
+    "noSelectionsHint": "¡Empieza a predecir resultados!",
+    "pickMatches": "Elegir Partidos",
+    "all": "Todas"
+  },
+  "history": {
+    "title": "Predicciones Pasadas",
+    "mySelections": "Mis Picks",
+    "resolved": "Resueltas",
+    "correct": "Correctas",
+    "accuracy": "Precisión",
+    "noFinished": "Sin partidos finalizados aún",
+    "noFinishedHint": "Vuelve después de que terminen tus partidos."
+  },
+  "leagues": {
+    "title": "Elige una Liga",
+    "matchday": "Jornada",
+    "viewMatches": "Ver Partidos",
+    "noMatches": "No se encontraron partidos próximos."    
+  },
+  "match": {
+    "draw": "Empate",
+    "won": "ganó",
+    "home": "Local",
+    "away": "Visitante",
+    "locked": "Bloqueado"
+  },
+  "account": {
+    "title": "Cuenta",
+    "language": "Idioma",
+    "english": "Inglés",
+    "spanish": "Español",
+    "signOut": "Cerrar Sesión",
+    "predictions": "Mis Picks",
+    "correct": "Correctas",
+    "accuracy": "Precisión",
+    "history": "Predicciones Pasadas",
+    "changePassword": "Cambiar Contraseña",
+    "leagues": "Ver Ligas",
+    "edge": "Edge",
+    "vsCrowdAvg": "vs promedio"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "signUp": "Registrarse",
+    "email": "Correo",
+    "password": "Contraseña",
+    "name": "Nombre",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?"
+  },
+  "signIn": {
+  "title": "Bienvenido de nuevo",
+  "subtitle": "Inicia sesión en tu cuenta de AccuFootball",
+  "emailLabel": "Correo electrónico",
+  "emailPlaceholder": "tu@ejemplo.com",
+  "passwordLabel": "Contraseña",
+  "passwordPlaceholder": "Tu contraseña",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "signingIn": "Iniciando sesión...",
+  "signInButton": "Iniciar sesión",
+  "noAccount": "¿No tienes cuenta?",
+  "signUp": "Regístrate",
+  "invalidCredentials": "Correo o contraseña incorrectos."
+},
+  "forgotPassword": {
+  "title": "Olvidé mi contraseña",
+  "subtitle": "Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña",
+  "emailLabel": "Correo electrónico",
+  "emailPlaceholder": "tu@ejemplo.com",
+  "sending": "Enviando...",
+  "sendButton": "Enviar enlace",
+  "backToSignIn": "Volver al inicio de sesión",
+  "checkEmail": "Revisa tu correo",
+  "sentTo": "Enviamos un enlace de restablecimiento a",
+  "genericError": "Algo salió mal."
+},
+"resetPassword": {
+  "title": "Nueva contraseña",
+  "subtitle": "Ingresa tu nueva contraseña a continuación",
+  "passwordLabel": "Nueva contraseña",
+  "passwordPlaceholder": "Mín. 6 caracteres",
+  "updating": "Actualizando...",
+  "updateButton": "Actualizar contraseña",
+  "invalidLink": "Enlace de restablecimiento inválido.",
+  "genericError": "Algo salió mal."
+},
+"changePassword": {
+  "title": "Cambiar contraseña",
+  "subtitle": "Ingresa tu contraseña actual y la nueva",
+  "currentPassword": "Contraseña actual",
+  "newPassword": "Nueva contraseña",
+  "updating": "Actualizando...",
+  "updateButton": "Actualizar contraseña",
+  "backToAccount": "Volver a la cuenta",
+  "successTitle": "¡Contraseña actualizada!",
+  "successSubtitle": "Tu contraseña fue cambiada exitosamente.",
+  "genericError": "Algo salió mal."
+}
+}

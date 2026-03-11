@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { toggleSelection } from "@/app/actions/selections";
+import { useTranslations, useLocale } from "next-intl";
 
 type Match = {
   id: number;
@@ -26,18 +27,21 @@ export default function MatchCard({
   match: Match;
   userPrediction?: string | null;
 }) {
+  const t = useTranslations("match");
+  const locale = useLocale(); // 👈
   const [selected, setSelected] = useState<string | null>(userPrediction ?? null);
   const [loading, setLoading] = useState(false);
 
   const date = new Date(match.utcDate);
-  const dateStr = date.toLocaleDateString("en-GB", {
+  const dateLocale = locale === "es" ? "es-ES" : "en-GB"; // 👈
+
+  const dateStr = date.toLocaleDateString(dateLocale, {
     weekday: "short", month: "short", day: "numeric",
   });
-  const timeStr = date.toLocaleTimeString("en-GB", {
+  const timeStr = date.toLocaleTimeString(dateLocale, {
     hour: "2-digit", minute: "2-digit",
   });
 
-  // Lock 5 minutes before kickoff
   const now = new Date();
   const kickoff = new Date(match.utcDate);
   const minutesUntilKickoff = (kickoff.getTime() - now.getTime()) / 1000 / 60;
@@ -58,11 +62,10 @@ export default function MatchCard({
 
   const options = [
     { value: "HOME_TEAM", label: match.homeTeamShort },
-    { value: "DRAW",      label: "Draw" },
+    { value: "DRAW",      label: t("draw") },
     { value: "AWAY_TEAM", label: match.awayTeamShort },
   ];
 
-  // Result badge per button
   function getButtonStyle(value: string) {
     if (!isFinished) {
       return selected === value
@@ -71,9 +74,9 @@ export default function MatchCard({
     }
     const userPicked = selected === value;
     const isWinner = match.winner === value;
-    if (userPicked && isWinner)  return "bg-green-500 text-white";   
-    if (userPicked && !isWinner) return "bg-red-500 text-white";     
-    if (!userPicked && isWinner) return "bg-[#2a2a2a] text-green-400 border border-green-600"; // actual result
+    if (userPicked && isWinner)  return "bg-green-500 text-white";
+    if (userPicked && !isWinner) return "bg-red-500 text-white";
+    if (!userPicked && isWinner) return "bg-[#2a2a2a] text-green-400 border border-green-600";
     return "bg-[#2a2a2a] text-gray-600 border border-[#3a3a3a]";
   }
 
@@ -87,7 +90,7 @@ export default function MatchCard({
         </p>
         {isLocked && !isFinished && (
           <span className="text-[10px] text-yellow-400 font-black uppercase tracking-widest">
-             Locked
+            {t("locked")}
           </span>
         )}
       </div>
@@ -114,10 +117,10 @@ export default function MatchCard({
           {isFinished && match.winner && (
             <span className="text-[10px] text-gray-500 uppercase tracking-widest">
               {match.winner === "HOME_TEAM"
-                ? `${match.homeTeamShort} won`
+                ? `${match.homeTeamShort} ${t("won")}`
                 : match.winner === "AWAY_TEAM"
-                ? `${match.awayTeamShort} won`
-                : "Draw"}
+                ? `${match.awayTeamShort} ${t("won")}`
+                : t("draw")}
             </span>
           )}
         </div>

@@ -1,0 +1,142 @@
+{
+  "nav": {
+    "home": "Home",
+    "leagues": "Leagues",
+    "selections": "Selections",
+    "account": "Account"
+  },
+  "home": {
+    "matchDay": "Match Day",
+    "makePrediction": "Make Prediction",
+    "featuredMatches": "Featured Matches",
+    "noUpcoming": "No upcoming matches right now",
+    "howItWorks": "How it works",
+    "how1": "Predict the result of matches",
+    "how2lock": "5 minutes",
+    "how2prefix": "Predictions lock",
+    "how2suffix": "before kickoff",
+    "how3label": "Accuracy",
+    "how3": "tracks how often you predict correctly",
+    "how4label": "Edge",
+    "how4prefix": "Your",
+    "how4suffix": "score rewards picking upsets — the less likely your pick, the higher the reward",
+    "how5label": "Score",
+    "how5prefix": "Your",
+    "how5suffix": "combines both — climb the leaderboard by being accurate and bold",
+    "weeklyTop": "Weekly Top",
+    "monthlyTop": "Monthly Top",
+    "rankingSoon": "Rankings coming soon — need 10+ resolved picks to appear",
+    "selections": "selections",
+    "player": "Player",
+    "acc": "Acc",
+    "edge": "Edge",
+    "score": "Score",
+    "vsCrowdAvg": "vs crowd avg"
+  },
+  "selections": {
+    "title": "My Selections",
+    "past": "Past Predictions",
+    "active": "Active",
+    "correct": "Correct",
+    "wrong": "Wrong",
+    "noSelections": "No selections yet",
+    "noSelectionsHint": "Start predicting match results!",
+    "pickMatches": "Pick Matches",
+    "all": "All"
+  },
+  "history": {
+    "title": "Past Predictions",
+    "mySelections": "My Selections",
+    "resolved": "Resolved",
+    "correct": "Correct",
+    "accuracy": "Accuracy",
+    "noFinished": "No finished matches yet",
+    "noFinishedHint": "Check back after your predicted games finish."
+  },
+  "leagues": {
+    "title": "Pick a League",
+    "matchday": "Matchday",
+    "viewMatches": "View Matches",
+    "noMatches": "No upcoming matches found."
+  },
+  "match": {
+    "draw": "Draw",
+    "won": "won",
+    "home": "Home",
+    "away": "Away",
+    "locked": "Locked"
+  },
+  "account": {
+    "title": "Account",
+    "language": "Language",
+    "english": "English",
+    "spanish": "Spanish",
+    "signOut": "Sign Out",
+    "predictions": "Predictions",
+    "correct": "Correct",
+    "accuracy": "Accuracy",
+    "history": "History",
+    "changePassword": "Change Password",
+    "leagues": "Browse Leagues",
+    "edge": "Edge",
+    "vsCrowdAvg": "vs crowd avg"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "signIn": {
+  "title": "Welcome back",
+  "subtitle": "Sign in to your AccuFootball account",
+  "emailLabel": "Email",
+  "emailPlaceholder": "you@example.com",
+  "passwordLabel": "Password",
+  "passwordPlaceholder": "Your password",
+  "forgotPassword": "Forgot password?",
+  "signingIn": "Signing in...",
+  "signInButton": "Sign In",
+  "noAccount": "Don't have an account?",
+  "signUp": "Sign up",
+  "invalidCredentials": "Invalid email or password."
+},
+  "forgotPassword": {
+  "title": "Forgot password",
+  "subtitle": "Enter your email and we'll send you a reset link",
+  "emailLabel": "Email",
+  "emailPlaceholder": "you@example.com",
+  "sending": "Sending...",
+  "sendButton": "Send Reset Link",
+  "backToSignIn": "Back to Sign In",
+  "checkEmail": "Check your email",
+  "sentTo": "We sent a password reset link to",
+  "genericError": "Something went wrong."
+},
+"resetPassword": {
+  "title": "New password",
+  "subtitle": "Enter your new password below",
+  "passwordLabel": "New Password",
+  "passwordPlaceholder": "Min. 6 characters",
+  "updating": "Updating...",
+  "updateButton": "Update Password",
+  "invalidLink": "Invalid reset link.",
+  "genericError": "Something went wrong."
+},
+"changePassword": {
+  "title": "Change password",
+  "subtitle": "Enter your current and new password",
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "updating": "Updating...",
+  "updateButton": "Update Password",
+  "backToAccount": "Back to Account",
+  "successTitle": "Password updated!",
+  "successSubtitle": "Your password has been changed successfully.",
+  "genericError": "Something went wrong."
+}
+}
