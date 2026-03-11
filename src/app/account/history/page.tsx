@@ -2,15 +2,23 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { selections, matches, competitions } from "@/db/schema";
-import { and, eq, gte, lte } from "drizzle-orm";
+import { and, eq, gte } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
 import MatchCard from "@/components/MatchCard";
 import { checkMatchResults } from "@/app/actions/selections";
+import LeagueFilter from "@/components/LeagueFilter";
 
-export default async function HistoryPage() {
+export default async function HistoryPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ league?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/auth/signin");
+
+  const { league } = await searchParams;
+  const activeLeague = league ?? null;
 
   await checkMatchResults();
 
@@ -39,12 +47,23 @@ export default async function HistoryPage() {
     )
     .orderBy(matches.utcDate);
 
-  const grouped = history.reduce((acc, s) => {
-    const key = s.competitionName;
-    if (!acc[key]) acc[key] = { emblem: s.competitionEmblem, competitionId: s.competitionId, items: [] };
-    acc[key].items.push(s);
-    return acc;
-  }, {} as Record<string, { emblem: string; competitionId: number; items: typeof history }>);
+  // Extract unique leagues
+  const leagues = Object.values(
+    history.reduce((acc, s) => {
+      if (!acc[s.competitionId])
+        acc[s.competitionId] = { id: s.competitionId, name: s.competitionName, emblem: s.competitionEmblem };
+      return acc;
+    }, {} as Record<number, { id: number; name: string; emblem: string }>)
+  );
+
+  const grouped = history
+    .filter((s) => !activeLeague || s.competitionName === activeLeague)
+    .reduce((acc, s) => {
+      const key = s.competitionName;
+      if (!acc[key]) acc[key] = { emblem: s.competitionEmblem, competitionId: s.competitionId, items: [] };
+      acc[key].items.push(s);
+      return acc;
+    }, {} as Record<string, { emblem: string; competitionId: number; items: typeof history }>);
 
   const correct = history.filter(s => s.isCorrect === true).length;
   const total = history.length;
@@ -57,11 +76,17 @@ export default async function HistoryPage() {
       <div className="flex items-center gap-3 mb-6">
         <div className="w-1 h-6 bg-yellow-400 rounded-full" />
         <h1 className="text-s font-black text-white uppercase tracking-widest">
-          Recent Predictions
+          Past Predictions
         </h1>
+        <Link
+          href="/selections"
+          className="ml-auto text-[13px] font-black uppercase tracking-widest text-yellow-400 border border-yellow-400 rounded-lg px-3 py-1.5"
+        >
+          My Selections
+        </Link>
       </div>
 
-      {/* Stats bar */}
+      {/* Stats bar — always reflects all history, not filtered */}
       {total > 0 && (
         <div className="flex gap-3 mb-6">
           <div className="flex-1 bg-[#1c1c1c] border border-[#3a3a3a] rounded-xl p-3 text-center">
@@ -80,6 +105,9 @@ export default async function HistoryPage() {
           </div>
         </div>
       )}
+
+      {/* League filter — only if more than 1 league */}
+      {leagues.length > 1 && <LeagueFilter leagues={leagues} />}
 
       {/* Empty state */}
       {total === 0 ? (

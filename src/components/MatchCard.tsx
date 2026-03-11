@@ -114,10 +114,10 @@ export default function MatchCard({
           {isFinished && match.winner && (
             <span className="text-[10px] text-gray-500 uppercase tracking-widest">
               {match.winner === "HOME_TEAM"
-                ? match.homeTeamShort
+                ? `${match.homeTeamShort} won`
                 : match.winner === "AWAY_TEAM"
-                ? match.awayTeamShort
-                : "Draw"} won
+                ? `${match.awayTeamShort} won`
+                : "Draw"}
             </span>
           )}
         </div>
