@@ -32,6 +32,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Current password is incorrect" }, { status: 400 });
   }
 
+  const isSame = await bcrypt.compare(newPassword, user.password!);
+  if (isSame) {
+    return NextResponse.json(
+      { error: "New password must be different from current password" },
+      { status: 400 }
+    );
+  }
+
   const hashed = await bcrypt.hash(newPassword, 10);
   await db.update(users).set({ password: hashed }).where(eq(users.id, session.user.id));
 
