@@ -7,6 +7,14 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   const { token, password } = await req.json();
 
+  if (!token || !password) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+
+  if (password.length < 8) {
+    return NextResponse.json({ error: "Password too short" }, { status: 400 });
+  }
+
   const [user] = await db.select().from(users).where(eq(users.resetToken, token));
 
   if (!user || !user.resetTokenExpiry || user.resetTokenExpiry < new Date()) {
