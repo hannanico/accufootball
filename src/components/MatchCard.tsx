@@ -3,6 +3,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { toggleSelection } from "@/app/actions/selections";
 import { useTranslations, useLocale } from "next-intl";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Match = {
   id: number;
@@ -28,12 +30,15 @@ export default function MatchCard({
   userPrediction?: string | null;
 }) {
   const t = useTranslations("match");
-  const locale = useLocale(); // 👈
+  const locale = useLocale();
+  const { data: session } = useSession();
+  const router = useRouter();
   const [selected, setSelected] = useState<string | null>(userPrediction ?? null);
   const [loading, setLoading] = useState(false);
+  const [showLoginHint, setShowLoginHint] = useState(false);
 
   const date = new Date(match.utcDate);
-  const dateLocale = locale === "es" ? "es-ES" : "en-GB"; // 👈
+  const dateLocale = locale === "es" ? "es-ES" : "en-GB";
 
   const dateStr = date.toLocaleDateString(dateLocale, {
     weekday: "short", month: "short", day: "numeric",
@@ -52,6 +57,12 @@ export default function MatchCard({
     (match.status === "SCHEDULED" || match.status === "TIMED");
 
   async function handlePrediction(option: string) {
+    // Not logged in — show hint briefly
+    if (!session) {
+      setShowLoginHint(true);
+      setTimeout(() => setShowLoginHint(false), 3000);
+      return;
+    }
     if (loading || !canPredict) return;
     setLoading(true);
     const newSelected = selected === option ? null : option;
@@ -135,18 +146,33 @@ export default function MatchCard({
         </div>
       </div>
 
-      {/* Prediction buttons */}
-      <div className="flex gap-2 px-4 pb-4">
-        {options.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => handlePrediction(opt.value)}
-            disabled={loading || !canPredict}
-            className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all active:scale-95 ${getButtonStyle(opt.value)} disabled:cursor-not-allowed`}
+      {/* Prediction buttons or login hint */}
+      <div className="px-4 pb-4">
+        {showLoginHint ? (
+          // Login hint — slides in when guest taps a button
+          <div
+            className="flex items-center justify-between bg-[#2a2a2a] border border-yellow-400/40 rounded-xl px-4 py-2.5 cursor-pointer"
+            onClick={() => router.push("/auth/signin")}
           >
-            {opt.label}
-          </button>
-        ))}
+            <p className="text-xs text-yellow-400 font-black uppercase tracking-wide">
+              {t("loginToPredict")}
+            </p>
+            <span className="text-yellow-400 text-lg">→</span>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => handlePrediction(opt.value)}
+                disabled={loading || (!session && false) || (!canPredict && !!session)}
+                className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all active:scale-95 ${getButtonStyle(opt.value)} disabled:cursor-not-allowed`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

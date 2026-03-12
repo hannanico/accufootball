@@ -64,7 +64,8 @@
     "won": "ganó",
     "home": "Local",
     "away": "Visitante",
-    "locked": "Bloqueado"
+    "locked": "Bloqueado",
+    "loginToPredict": "Inicia sesión para predecir"
   },
   "account": {
     "title": "Cuenta",

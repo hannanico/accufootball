@@ -64,7 +64,8 @@
     "won": "won",
     "home": "Home",
     "away": "Away",
-    "locked": "Locked"
+    "locked": "Locked",
+    "loginToPredict": "Sign in to make a prediction"
   },
   "account": {
     "title": "Account",
