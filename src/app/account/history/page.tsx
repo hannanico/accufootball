@@ -10,22 +10,40 @@ import { checkMatchResults } from "@/app/actions/selections";
 import LeagueFilter from "@/components/LeagueFilter";
 import { getTranslations } from "next-intl/server";
 
+function getDateFrom(range: string | null): Date | null {
+  const now = new Date();
+  switch (range) {
+    case "7":
+      now.setDate(now.getDate() - 7);
+      return now;
+    case "30":
+      now.setDate(now.getDate() - 30);
+      return now;
+    case "90":
+      now.setDate(now.getDate() - 90);
+      return now;
+    case "all":
+    default:
+      return null; // no date filter
+  }
+}
+
 export default async function HistoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ league?: string }>;
+  searchParams: Promise<{ league?: string; range?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/auth/signin");
 
   const t = await getTranslations("history");
-  const { league } = await searchParams;
+  const { league, range } = await searchParams;
   const activeLeague = league ?? null;
+  const activeRange = range ?? "30"; // default to 30 days
 
   await checkMatchResults();
 
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const dateFrom = getDateFrom(activeRange);
 
   const history = await db
     .select({
@@ -44,7 +62,7 @@ export default async function HistoryPage({
       and(
         eq(selections.userId, session.user.id),
         eq(matches.status, "FINISHED"),
-        gte(matches.utcDate, thirtyDaysAgo)
+        dateFrom ? gte(matches.utcDate, dateFrom) : undefined
       )
     )
     .orderBy(matches.utcDate);
@@ -70,6 +88,13 @@ export default async function HistoryPage({
   const total = history.length;
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : null;
 
+  const ranges = [
+    { label: "7d", value: "7" },
+    { label: "30d", value: "30" },
+    { label: "90d", value: "90" },
+    { label: t("allTime"), value: "all" },
+  ];
+
   return (
     <div className="px-5 py-6 pb-28">
 
@@ -85,6 +110,28 @@ export default async function HistoryPage({
         >
           {t("mySelections")}
         </Link>
+      </div>
+
+      {/* Date range filter */}
+      <div className="flex gap-2 mb-6">
+        {ranges.map(({ label, value }) => {
+          const params = new URLSearchParams();
+          params.set("range", value);
+          if (activeLeague) params.set("league", activeLeague);
+          return (
+            <Link
+              key={value}
+              href={`?${params.toString()}`}
+              className={`flex-1 text-center text-[11px] font-black uppercase tracking-widest py-2 rounded-lg border transition-colors ${
+                activeRange === value
+                  ? "bg-yellow-400 text-black border-yellow-400"
+                  : "bg-[#1c1c1c] text-gray-400 border-[#3a3a3a]"
+              }`}
+            >
+              {label}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Stats bar */}
