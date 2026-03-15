@@ -3,7 +3,6 @@ import { matches, competitions, selections } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import Image from "next/image";
 import MatchCard from "@/components/MatchCard";
-import { syncCompetitionMatches } from "@/lib/syncMatches";
 import { auth } from "@/auth";
 import { getTranslations } from "next-intl/server";
 
@@ -16,8 +15,6 @@ export default async function LeagueMatchesPage({
   const competitionId = parseInt(id);
   const t = await getTranslations("leagues");
 
-  const currentMatchday = await syncCompetitionMatches(competitionId);
-
   const [competition] = await db
     .select()
     .from(competitions)
@@ -27,13 +24,7 @@ export default async function LeagueMatchesPage({
     .select()
     .from(matches)
     .where(eq(matches.competitionId, competitionId))
-    .orderBy(matches.utcDate);
-
-  const filtered = currentMatchday
-    ? leagueMatches.filter(
-        (m) => m.matchday === currentMatchday || m.matchday === currentMatchday + 1
-      )
-    : leagueMatches;
+    .orderBy(matches.utcDate, matches.id);
 
   const session = await auth();
   const userSelections = session?.user?.id
@@ -54,12 +45,22 @@ export default async function LeagueMatchesPage({
 
   const now = new Date();
 
-  const visible = filtered.filter((m) => {
+  // Filter out finished matches and matches within 5 minutes of kickoff
+  const visible = leagueMatches.filter((m) => {
     const minutesUntilKickoff = (new Date(m.utcDate).getTime() - now.getTime()) / 1000 / 60;
     return m.status !== "FINISHED" && minutesUntilKickoff > 5;
   });
 
-  const grouped = visible.reduce((acc, match) => {
+  // Find the first matchday that actually has visible upcoming matches
+  const visibleMatchdays = [...new Set(visible.map((m) => m.matchday))].sort((a, b) => a - b);
+  const firstVisible = visibleMatchdays[0] ?? null;
+
+  // Show first visible matchday + the next one
+  const finalVisible = firstVisible
+    ? visible.filter((m) => m.matchday === firstVisible || m.matchday === firstVisible + 1)
+    : visible;
+
+  const grouped = finalVisible.reduce((acc, match) => {
     const key = match.matchday;
     if (!acc[key]) acc[key] = [];
     acc[key].push(match);
@@ -94,7 +95,7 @@ export default async function LeagueMatchesPage({
             <div className="flex items-center gap-3 mb-3">
               <div className="w-1 h-5 bg-yellow-400 rounded-full" />
               <h2 className="text-s font-black text-white uppercase tracking-widest">
-                {t("matchday")} {matchday}  {/* 👈 */}
+                {t("matchday")} {matchday}
               </h2>
             </div>
 
