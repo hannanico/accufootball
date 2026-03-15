@@ -1,10 +1,11 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
+const NAME_REGEX = /^[a-zA-Z0-9_-]{3,20}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignUpPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,14 +14,31 @@ export default function SignUpPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
     setError("");
+
+    if (!NAME_REGEX.test(name)) {
+      setError("Name must be 3–20 characters: letters, numbers, _ or -");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
 
     const res = await signIn("credentials", {
       name, email, password, mode: "signup", redirect: false,
     });
 
     setLoading(false);
+
     if (res?.error) {
       setError("Email already registered. Try signing in.");
     } else {
@@ -36,27 +54,48 @@ export default function SignUpPage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label className="text-sm text-gray-400 mb-1 block">Name</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)}
-            placeholder="Your name" required
-            className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400" />
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => {
+              const val = e.target.value.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 20);
+              setName(val);
+            }}
+            placeholder="3–20 chars, letters, numbers, _ or -"
+            required
+            className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400"
+          />
         </div>
         <div>
           <label className="text-sm text-gray-400 mb-1 block">Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com" required
-            className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400" />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value.slice(0, 64))}
+            placeholder="you@example.com"
+            required
+            className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400"
+          />
         </div>
         <div>
           <label className="text-sm text-gray-400 mb-1 block">Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-            placeholder="Min. 6 characters" required minLength={6}
-            className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400" />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value.slice(0, 72))}
+            placeholder="Min. 6 characters"
+            required
+            className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-yellow-400"
+          />
         </div>
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
-        <button type="submit" disabled={loading}
-          className="w-full bg-yellow-400 text-black font-bold py-3 rounded-xl mt-2 active:scale-95 transition-transform disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-yellow-400 text-black font-bold py-3 rounded-xl mt-2 active:scale-95 transition-transform disabled:opacity-50"
+        >
           {loading ? "Creating account..." : "Sign Up"}
         </button>
       </form>

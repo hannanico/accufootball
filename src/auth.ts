@@ -5,6 +5,9 @@ import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
+const NAME_REGEX = /^[a-zA-Z0-9_-]{3,20}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
@@ -23,6 +26,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!email || !password) return null;
 
         if (mode === "signup") {
+          if (!NAME_REGEX.test(name)) {
+            throw new Error("Name must be 3–20 characters: letters, numbers, _ or -");
+          }
+
+          if (!EMAIL_REGEX.test(email)) {
+            throw new Error("Please enter a valid email address");
+          }
+
+          if (password.length < 6) {
+            throw new Error("Password must be at least 6 characters");
+          }
+
+          if (password.length > 72) {
+            throw new Error("Password must be at most 72 characters");
+          }
+
           const existing = await db.select().from(users).where(eq(users.email, email));
           if (existing.length > 0) throw new Error("Email already registered.");
 

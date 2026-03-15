@@ -51,6 +51,24 @@ export default async function HomePage() {
           </div>
         )}
       </div>
+      
+      {/* Weekly Top */}
+      <div className="mt-10 px-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-1 h-5 bg-yellow-400 rounded-full" />
+          <h2 className="text-xs font-black text-white uppercase tracking-widest">{t("weeklyTop")}</h2>
+        </div>
+        <LeaderboardTable rows={weekly} t={t} />
+      </div>
+
+      {/* Monthly Top */}
+      <div className="mt-10 px-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-1 h-5 bg-yellow-400 rounded-full" />
+          <h2 className="text-xs font-black text-white uppercase tracking-widest">{t("monthlyTop")}</h2>
+        </div>
+        <LeaderboardTable rows={monthly} t={t} />
+      </div>
 
       {/* How it works */}
       <div className="mt-10 px-5">
@@ -90,24 +108,6 @@ export default async function HomePage() {
             </p>
           </div>
         </div>
-      </div>
-
-      {/* Weekly Top */}
-      <div className="mt-10 px-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-1 h-5 bg-yellow-400 rounded-full" />
-          <h2 className="text-xs font-black text-white uppercase tracking-widest">{t("weeklyTop")}</h2>
-        </div>
-        <LeaderboardTable rows={weekly} t={t} />
-      </div>
-
-      {/* Monthly Top */}
-      <div className="mt-10 px-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-1 h-5 bg-yellow-400 rounded-full" />
-          <h2 className="text-xs font-black text-white uppercase tracking-widest">{t("monthlyTop")}</h2>
-        </div>
-        <LeaderboardTable rows={monthly} t={t} />
       </div>
     </div>
   );
