@@ -1,34 +1,46 @@
-import { auth } from "@/auth";
 import { db } from "@/db";
 import { matches } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import FeaturedSlider from "@/components/FeaturedSlider";
+import LeaderboardTable from "@/components/LeaderboardTable";
+import RankingPeriodFilter from "@/components/RankingPeriodFilter";
 import { getLeaderboard } from "@/app/actions/leaderboard";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 
-export default async function HomePage() {
-  const session = await auth();
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ period?: string }>;
+}) {
+  const { period } = await searchParams;
   const t = await getTranslations("home");
 
-  const upcoming = await db
-    .select({
-      id: matches.id,
-      homeTeamShort: matches.homeTeamShort,
-      homeTeamCrest: matches.homeTeamCrest,
-      awayTeamShort: matches.awayTeamShort,
-      awayTeamCrest: matches.awayTeamCrest,
-      utcDate: matches.utcDate,
-      status: matches.status,
-      leagueId: matches.competitionId,
-    })
-    .from(matches)
-    .where(eq(matches.status, "TIMED"))
-    .orderBy(matches.utcDate)
-    .limit(6);
+  // Resolve period to a day count; null means all time.
+  const days =
+    period === "week"  ? 7  :
+    period === "month" ? 30 :
+    null; // "all" or no param → no date filter
 
-  const [weekly, monthly] = await Promise.all([
-    getLeaderboard(7),
-    getLeaderboard(30),
+  const [upcoming, leaderboard] = await Promise.all([
+    db
+      .select({
+        id: matches.id,
+        homeTeamShort: matches.homeTeamShort,
+        homeTeamCrest: matches.homeTeamCrest,
+        awayTeamShort: matches.awayTeamShort,
+        awayTeamCrest: matches.awayTeamCrest,
+        utcDate: matches.utcDate,
+        status: matches.status,
+        leagueId: matches.competitionId,
+      })
+      .from(matches)
+      .where(eq(matches.status, "TIMED"))
+      .orderBy(matches.utcDate)
+      .limit(6),
+
+    // Pass days (or null) to getLeaderboard — see note below.
+    getLeaderboard(days),
   ]);
 
   return (
@@ -43,6 +55,7 @@ export default async function HomePage() {
           </h2>
           <div className="w-1 h-6 bg-yellow-400 rounded-full" />
         </div>
+
         {upcoming.length > 0 ? (
           <FeaturedSlider matches={upcoming} />
         ) : (
@@ -51,23 +64,22 @@ export default async function HomePage() {
           </div>
         )}
       </div>
-      
-      {/* Weekly Top */}
-      <div className="mt-10 px-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-1 h-5 bg-yellow-400 rounded-full" />
-          <h2 className="text-xs font-black text-white uppercase tracking-widest">{t("weeklyTop")}</h2>
-        </div>
-        <LeaderboardTable rows={weekly} t={t} />
-      </div>
 
-      {/* Monthly Top */}
+      {/* Leaderboard */}
       <div className="mt-10 px-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-1 h-5 bg-yellow-400 rounded-full" />
-          <h2 className="text-xs font-black text-white uppercase tracking-widest">{t("monthlyTop")}</h2>
+          <h2 className="text-xs font-black text-white uppercase tracking-widest">
+            {t("leaderboard")}
+          </h2>
         </div>
-        <LeaderboardTable rows={monthly} t={t} />
+
+        {/* Period filter — needs Suspense because it uses useSearchParams */}
+        <Suspense>
+          <RankingPeriodFilter />
+        </Suspense>
+
+        <LeaderboardTable rows={leaderboard} t={t} />
       </div>
 
       {/* How it works */}
@@ -109,52 +121,6 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function LeaderboardTable({
-  rows,
-  t,
-}: {
-  rows: Awaited<ReturnType<typeof getLeaderboard>>;
-  t: Awaited<ReturnType<typeof getTranslations<"home">>>;
-}) {
-  if (rows.length === 0) {
-    return (
-      <div className="bg-[#111111] border border-[#222222] rounded-2xl p-6 text-center text-gray-500 text-sm">
-        {t("rankingSoon")}
-      </div>
-    );
-  }
-
-  return (
-    <div className="bg-[#111111] border border-[#222222] rounded-2xl overflow-hidden">
-      <div className="grid grid-cols-[28px_1fr_48px_48px_56px] gap-2 px-4 py-2 border-b border-[#2a2a2a]">
-        <span className="text-[10px] text-gray-600 uppercase">#</span>
-        <span className="text-[10px] text-gray-600 uppercase">{t("player")}</span>
-        <span className="text-[10px] text-gray-600 uppercase text-center">{t("acc")}</span>
-        <span className="text-[10px] text-gray-600 uppercase text-center">{t("edge")}</span>
-        <span className="text-[10px] text-gray-600 uppercase text-center">{t("score")}</span>
-      </div>
-
-      {rows.map((row, i) => (
-        <div
-          key={row.userId}
-          className="grid grid-cols-[28px_1fr_48px_48px_56px] gap-2 px-4 py-3 border-b border-[#1a1a1a] last:border-0 items-center"
-        >
-          <span className={`text-xs font-black ${i === 0 ? "text-yellow-400" : i === 1 ? "text-gray-300" : i === 2 ? "text-orange-400" : "text-gray-600"}`}>
-            {i + 1}
-          </span>
-          <div>
-            <p className="text-xs font-black text-white uppercase tracking-wide truncate">{row.name}</p>
-            <p className="text-[10px] text-gray-400">{row.total} {t("selections")}</p>
-          </div>
-          <span className="text-xs font-black text-green-400 text-center">{row.accuracy}%</span>
-          <span className="text-xs font-black text-yellow-400 text-center">{row.edge}x</span>
-          <span className="text-xs font-black text-white text-center">{row.rankScore}</span>
-        </div>
-      ))}
     </div>
   );
 }
