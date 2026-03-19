@@ -12,6 +12,7 @@ export default function HamburgerMenu() {
   const navItems = [
     { href: "/",           label: t("home"),       icon: "⚽" },
     { href: "/leagues",    label: t("leagues"),    icon: "🏆" },
+    { href: "/schedule",   label: t("schedule"),   icon: "📅" },
     { href: "/selections", label: t("selections"), icon: "📋" },
     { href: "/account",    label: t("account"),    icon: "👤" },
   ];

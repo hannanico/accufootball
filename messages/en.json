@@ -2,6 +2,7 @@
   "nav": {
     "home": "Home",
     "leagues": "Leagues",
+    "schedule": "Schedule",
     "selections": "Selections",
     "account": "Account"
   },
@@ -27,6 +28,9 @@
     "how5label": "Score",
     "how5prefix": "Your",
     "how5suffix": "combines both — climb the leaderboard by being accurate and bold",
+    "how6prefix": "Players with more predictions may rank higher —",
+    "how6label": "more picks = more proven consistency",
+    "how6suffix": ", not just luck.",
     "weeklyTop": "Weekly Top",
     "monthlyTop": "Monthly Top",
     "rankingSoon": "Rankings coming soon — need 10+ resolved picks to appear",
@@ -36,6 +40,10 @@
     "edge": "Edge",
     "score": "Score",
     "vsCrowdAvg": "vs crowd avg"
+  },
+  "schedule": {
+    "title": "Schedule",
+    "noMatches": "No matches scheduled for this day."
   },
   "selections": {
     "title": "My Selections",

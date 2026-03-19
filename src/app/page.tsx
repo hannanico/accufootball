@@ -119,6 +119,14 @@ export default async function HomePage({
               {t("how5prefix")} <span className="text-white font-bold">{t("how5label")}</span> {t("how5suffix")}
             </p>
           </div>
+
+          {/* New: explain volume factor */}
+          <div className="flex items-center gap-3">
+            <span className="text-base">📈</span>
+            <p className="text-[12px] text-gray-400">
+              {t("how6prefix")} <span className="text-yellow-400 font-bold">{t("how6label")}</span> {t("how6suffix")}
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
   "nav": {
     "home": "Inicio",
     "leagues": "Ligas",
+    "schedule": "Calendario",
     "selections": "Selecciones",
     "account": "Cuenta"
   },
@@ -27,6 +28,9 @@
     "how5label": "Puntaje",
     "how5prefix": "Tu",
     "how5suffix": "combina ambos — sube en el ranking siendo preciso y audaz",
+    "how6prefix": "Jugadores con más predicciones pueden rankear más alto —",
+    "how6label": "más picks = más consistencia demostrada",
+    "how6suffix": ", no solo suerte.",
     "weeklyTop": "Top Semanal",
     "monthlyTop": "Top Mensual",
     "rankingSoon": "Rankings próximamente — necesitas 10+ selecciones resueltas para aparecer",
@@ -36,6 +40,10 @@
     "edge": "Edge",
     "score": "Puntaje",
     "vsCrowdAvg": "vs promedio"
+  },
+  "schedule": {
+    "title": "Calendario",
+    "noMatches": "No hay partidos programados para este día."
   },
   "selections": {
     "title": "Mis Picks",

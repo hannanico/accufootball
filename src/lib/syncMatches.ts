@@ -46,6 +46,7 @@ export async function syncCompetitionMatches(competitionId: number): Promise<num
     await db.insert(matches).values(values).onConflictDoUpdate({
       target: matches.id,
       set: {
+        utcDate: sql`excluded.utc_date`,
         status: sql`excluded.status`,
         homeScore: sql`excluded.home_score`,
         awayScore: sql`excluded.away_score`,
@@ -102,6 +103,7 @@ export async function syncFinishedMatches(competitionId: number): Promise<void> 
     await db.insert(matches).values(values).onConflictDoUpdate({
       target: matches.id,
       set: {
+        utcDate: sql`excluded.utc_date`,
         status: sql`excluded.status`,
         homeScore: sql`excluded.home_score`,
         awayScore: sql`excluded.away_score`,

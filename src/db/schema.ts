@@ -22,12 +22,12 @@ export const matches = pgTable("matches", {
   awayTeamName: text("away_team_name").notNull(),
   awayTeamShort: text("away_team_short").notNull(),
   awayTeamCrest: text("away_team_crest").notNull(),
-  utcDate: timestamp("utc_date").notNull(),
+  utcDate:     timestamp("utc_date",{ withTimezone: true }).notNull(),
   status: text("status").notNull(),         // SCHEDULED | LIVE | FINISHED
   homeScore: integer("home_score"),
   awayScore: integer("away_score"),
   winner: text("winner"),                   // HOME_TEAM | DRAW | AWAY_TEAM | null
-  lastUpdated: timestamp("last_updated").notNull(),
+  lastUpdated: timestamp("last_updated",{ withTimezone: true }).notNull()
 });
 
 export const users = pgTable("users", {
