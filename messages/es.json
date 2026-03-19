@@ -43,7 +43,13 @@
   },
   "schedule": {
     "title": "Calendario",
-    "noMatches": "No hay partidos programados para este día."
+    "noMatches": "No hay partidos programados para este día.",
+    "today": "Hoy",
+    "backToToday": "← Volver a hoy",
+    "all": "Todos",
+    "live": "En vivo",
+    "finished": "Finalizados",
+    "upcoming": "Próximos"
   },
   "selections": {
     "title": "Mis Picks",

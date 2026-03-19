@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Trophy, BookmarkCheck, User } from "lucide-react";
+import { Home, Trophy, CalendarDays, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function Navbar() {
@@ -9,10 +9,10 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const links = [
-    { href: "/",           label: t("home"),       icon: Home },
-    { href: "/leagues",    label: t("leagues"),    icon: Trophy },
-    { href: "/selections", label: t("selections"), icon: BookmarkCheck },
-    { href: "/account",    label: t("account"),    icon: User },
+    { href: "/",          label: t("home"),     icon: Home         },
+    { href: "/leagues",   label: t("leagues"),  icon: Trophy       },
+    { href: "/schedule",  label: t("schedule"), icon: CalendarDays },
+    { href: "/account",   label: t("account"),  icon: User         },
   ];
 
   return (

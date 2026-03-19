@@ -43,7 +43,13 @@
   },
   "schedule": {
     "title": "Schedule",
-    "noMatches": "No matches scheduled for this day."
+    "noMatches": "No matches scheduled for this day.",
+    "today": "Today",
+    "backToToday": "← Back to today",
+    "all": "All",
+    "live": "Live",
+    "finished": "Finished",
+    "upcoming": "Upcoming"
   },
   "selections": {
     "title": "My Selections",
