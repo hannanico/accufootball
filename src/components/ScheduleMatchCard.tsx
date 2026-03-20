@@ -1,5 +1,8 @@
 // Read-only match card for the schedule page.
 // No prediction buttons — just teams, time, and result if available.
+"use client"
+
+import { useLocale } from "next-intl";
 import Image from "next/image";
 
 type ScheduleMatch = {
@@ -15,10 +18,13 @@ type ScheduleMatch = {
 };
 
 export default function ScheduleMatchCard({ match }: { match: ScheduleMatch }) {
+  const locale = useLocale();
+  const dateLocate = locale === "es" ? "es-ES" : "en-GB";
+
   const isFinished = match.status === "FINISHED";
   const isLive = match.status === "IN_PLAY" || match.status === "PAUSED";
 
-  const timeStr = new Date(match.utcDate).toLocaleTimeString("en-GB", {
+  const timeStr = new Date(match.utcDate).toLocaleTimeString(dateLocate, {
     hour: "2-digit",
     minute: "2-digit",
   });
