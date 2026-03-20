@@ -65,7 +65,7 @@ export async function syncCompetitionMatches(competitionId: number): Promise<num
 export async function syncFinishedMatches(competitionId: number): Promise<void> {
   try {
     const res = await fetch(
-      `https://api.football-data.org/v4/competitions/${competitionId}/matches?status=LIVE,FINISHED`, // 👈 removed dateFrom/dateTo
+      `https://api.football-data.org/v4/competitions/${competitionId}/matches?status=IN_PLAY,PAUSED,FINISHED`, 
       {
         headers: { "X-Auth-Token": process.env.FOOTBALL_API_KEY! },
         cache: "no-store",
