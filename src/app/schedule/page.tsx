@@ -1,74 +1,64 @@
-import { db } from "@/db";
-import { matches, competitions } from "@/db/schema";
-import { eq, and, gte, lt } from "drizzle-orm";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { toDateParam } from "@/lib/dateUtil";
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
 import DayStrip from "@/components/DayStrip";
 import ScheduleMatchCard from "@/components/ScheduleMatchCard";
-import { getTranslations } from "next-intl/server";
 
-export default async function SchedulePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ date?: string; status?: string }>;
-}) {
-  const { date, status } = await searchParams;
-  const t = await getTranslations("schedule");
+type Match = {
+  id: number;
+  homeTeamShort: string;
+  homeTeamCrest: string;
+  awayTeamShort: string;
+  awayTeamCrest: string;
+  utcDate: string;
+  status: string;
+  homeScore: number | null;
+  awayScore: number | null;
+  competitionId: number;
+  competitionName: string;
+  competitionEmblem: string;
+};
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+export default function SchedulePage() {
+  const t = useTranslations("schedule");
+  const searchParams = useSearchParams();
+  const todayParam = toDateParam(new Date()); // ✅ local date, runs in browser
+  const date = searchParams.get("date") ?? todayParam;
+  const status = searchParams.get("status") ?? "all";
 
-  const targetDateStr = date ?? todayStr;
-  const targetDate = new Date(targetDateStr);
-  const isToday = targetDateStr === todayStr;
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const dayStart = new Date(targetDate);
-  dayStart.setUTCHours(0, 0, 0, 0);
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/schedule?date=${date}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setMatches(data);
+        setLoading(false);
+      });
+  }, [date]);
 
-  const dayEnd = new Date(targetDate);
-  dayEnd.setUTCHours(23, 59, 59, 999);
+  // Apply status filter client-side
+  const filtered = matches.filter((m) => {
+    if (status === "all") return true;
+    if (status === "live")     return m.status === "IN_PLAY" || m.status === "PAUSED";
+    if (status === "finished") return m.status === "FINISHED";
+    if (status === "upcoming") return m.status === "SCHEDULED" || m.status === "TIMED";
+    return true;
+  });
 
-  let dayMatches = await db
-    .select({
-      id: matches.id,
-      homeTeamShort: matches.homeTeamShort,
-      homeTeamCrest: matches.homeTeamCrest,
-      awayTeamShort: matches.awayTeamShort,
-      awayTeamCrest: matches.awayTeamCrest,
-      utcDate: matches.utcDate,
-      status: matches.status,
-      homeScore: matches.homeScore,
-      awayScore: matches.awayScore,
-      competitionId: matches.competitionId,
-      competitionName: competitions.name,
-      competitionEmblem: competitions.emblemUrl,
-    })
-    .from(matches)
-    .innerJoin(competitions, eq(matches.competitionId, competitions.id))
-    .where(and(gte(matches.utcDate, dayStart), lt(matches.utcDate, dayEnd)))
-    .orderBy(matches.utcDate);
-
-  if (isToday && status && status !== "all") {
-    dayMatches = dayMatches.filter((m) => {
-      if (status === "live")     return m.status === "IN_PLAY" || m.status === "PAUSED";
-      if (status === "finished") return m.status === "FINISHED";
-      if (status === "upcoming") return m.status === "SCHEDULED" || m.status === "TIMED";
-      return true;
-    });
-  }
-
-  const grouped = dayMatches.reduce((acc, m) => {
+  const grouped = filtered.reduce((acc, m) => {
     const key = m.competitionName;
-    if (!acc[key]) {
-      acc[key] = {
-        emblem: m.competitionEmblem,
-        competitionId: m.competitionId, 
-        matches: [],
-      };
-    }
+    if (!acc[key]) acc[key] = { emblem: m.competitionEmblem, competitionId: m.competitionId, matches: [] };
     acc[key].matches.push(m);
     return acc;
-  }, {} as Record<string, { emblem: string; competitionId: number; matches: typeof dayMatches }>);
+  }, {} as Record<string, { emblem: string; competitionId: number; matches: Match[] }>);
 
   const competitions_list = Object.entries(grouped);
 
@@ -82,38 +72,32 @@ export default async function SchedulePage({
         </h1>
       </div>
 
-      {/* Day selector + status filters */}
+      {/* Day selector */}
       <div className="mb-6">
-        <Suspense>
-          <DayStrip />
-        </Suspense>
+        <DayStrip />
       </div>
 
-      {/* Matches grouped by competition */}
-      {competitions_list.length === 0 ? (
-        <p className="text-gray-500 text-center mt-16 text-sm">
-          {t("noMatches")}
-        </p>
+      {/* Matches */}
+      {loading ? (
+        <p className="text-gray-500 text-center mt-16 text-sm">...</p>
+      ) : competitions_list.length === 0 ? (
+        <p className="text-gray-500 text-center mt-16 text-sm">{t("noMatches")}</p>
       ) : (
-        competitions_list.map(([name, { emblem, competitionId, matches: compMatches }]) => ( 
+        competitions_list.map(([name, { emblem, competitionId, matches: compMatches }]) => (
           <div key={name} className="mb-8">
-            {/* Competition header → links to league page */}
-            <Link href={`/leagues/${competitionId}`} className="flex items-center gap-3 mb-3"> 
+            <Link href={`/leagues/${competitionId}`} className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center p-1.5 shrink-0">
                 <div className="w-full h-full relative">
                   <Image src={emblem} alt={name} fill className="object-contain" />
                 </div>
               </div>
-              <h2 className="text-s font-black text-white uppercase tracking-widest">
-                {name}
-              </h2>
-              <span className="text-yellow-400 text-3xl ml-auto">›</span> 
+              <h2 className="text-s font-black text-white uppercase tracking-widest">{name}</h2>
+              <span className="text-yellow-400 text-3xl ml-auto">›</span>
             </Link>
 
-            {/* Match cards */}
             <div className="flex flex-col gap-2">
               {compMatches.map((m) => (
-                <ScheduleMatchCard key={m.id} match={m} />
+                <ScheduleMatchCard key={m.id} match={{ ...m, utcDate: new Date(m.utcDate) }} />
               ))}
             </div>
           </div>
