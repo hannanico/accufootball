@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import { toDateParam, fromDateParam, addDays } from "@/lib/dateUtil";
@@ -24,6 +24,14 @@ export default function DayStrip() {
   const isToday      = activeParam === todayParam;
 
   const [showCalendar, setShowCalendar] = useState(false);
+
+   useEffect(() => {
+    if (!searchParams.get("date")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("date", todayParam);
+      router.replace(`${pathname}?${params.toString()}`);
+    }
+  }, []);
 
   function navigate(dateParam: string) {
     const params = new URLSearchParams(searchParams.toString());
