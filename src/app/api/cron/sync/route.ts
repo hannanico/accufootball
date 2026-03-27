@@ -1,5 +1,6 @@
 import { syncCompetition } from "@/lib/syncMatches";
 import { NextResponse, NextRequest } from "next/server";
+import { checkMatchResults } from "@/app/actions/selections";
 import { db } from "@/db";
 import { matches } from "@/db/schema";
 import { lt, sql } from "drizzle-orm";
@@ -18,6 +19,8 @@ export async function GET(request: NextRequest) {
   await Promise.all(
     COMPETITION_IDS.map((id) => syncCompetition(id))
   );
+
+   await checkMatchResults();
 
   return NextResponse.json({ ok: true });
 }

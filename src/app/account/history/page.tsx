@@ -6,7 +6,6 @@ import { and, eq, gte } from "drizzle-orm";
 import Image from "next/image";
 import Link from "next/link";
 import MatchCard from "@/components/MatchCard";
-import { checkMatchResults } from "@/app/actions/selections";
 import LeagueFilter from "@/components/LeagueFilter";
 import { getTranslations } from "next-intl/server";
 
@@ -40,8 +39,6 @@ export default async function HistoryPage({
   const { league, range } = await searchParams;
   const activeLeague = league ?? null;
   const activeRange = range ?? "30"; // default to 30 days
-
-  await checkMatchResults();
 
   const dateFrom = getDateFrom(activeRange);
 

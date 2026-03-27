@@ -6,7 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import MatchCard from "@/components/MatchCard";
-import { checkMatchResults } from "@/app/actions/selections";
 import LeagueFilter from "@/components/LeagueFilter";
 import { getTranslations } from "next-intl/server";
 
@@ -21,8 +20,6 @@ export default async function SelectionsPage({
   const t = await getTranslations("selections");
   const { league } = await searchParams;
   const activeLeague = league ?? null;
-
-  await checkMatchResults();
 
   const userSelections = await db
     .select({

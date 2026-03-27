@@ -45,6 +45,7 @@ export async function toggleSelection(
 }
 
 export async function checkMatchResults() {
+  // 1. Get all pending selections with match result
   const pending = await db
     .select({
       selectionId: selections.id,
@@ -64,47 +65,56 @@ export async function checkMatchResults() {
 
   if (pending.length === 0) return;
 
-  // For each pending match, calculate popularity of each outcome
-  const matchIds = [...new Set(pending.map(r => r.matchId))];
+  const matchIds = [...new Set(pending.map((r) => r.matchId))];
 
-  for (const matchId of matchIds) {
-    const rows = pending.filter(r => r.matchId === matchId);
+  // 2. Get all selection counts grouped by matchId + prediction in ONE query
+  const counts = await db
+    .select({
+      matchId: selections.matchId,
+      prediction: selections.prediction,
+      count: sql<number>`count(*)`,
+    })
+    .from(selections)
+    .where(sql`${selections.matchId} = ANY(ARRAY[${sql.join(matchIds.map(id => sql`${id}`), sql`, `)}]::int[])`)
+    .groupBy(selections.matchId, selections.prediction);
 
-    // Count how many users picked each outcome for this match
-    const totalPickers = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(selections)
-      .where(eq(selections.matchId, matchId));
-
-    const total = Number(totalPickers[0].count);
-
-    for (const outcome of ["HOME_TEAM", "DRAW", "AWAY_TEAM"]) {
-      const outcomePickers = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(selections)
-        .where(and(eq(selections.matchId, matchId), eq(selections.prediction, outcome)));
-
-      const outcomeCount = Number(outcomePickers[0].count);
-      // popularity = fraction of users who picked this outcome (min 0.01 to avoid division by zero)
-      const popularity = total > 0 ? Math.max(outcomeCount / total, 0.01) : 1;
-      // edge score = 1 / popularity (harder pick = higher score)
-      const edgeScore = 1 / popularity;
-
-      // Update all selections for this match+outcome
-      const matchRows = rows.filter(r => r.prediction === outcome);
-      for (const row of matchRows) {
-        const winner = row.winner;
-        if (!winner) continue;
-        const correct = row.prediction === winner;
-        await db
-          .update(selections)
-          .set({
-            isCorrect: correct,
-            score: correct ? String(edgeScore) : "0",
-            updatedAt: new Date(),
-          })
-          .where(eq(selections.id, row.selectionId));
-      }
-    }
+  // Build lookup: { matchId: { total, HOME_TEAM: n, DRAW: n, AWAY_TEAM: n } }
+  const countMap: Record<number, Record<string, number>> = {};
+  for (const row of counts) {
+    if (!countMap[row.matchId]) countMap[row.matchId] = { total: 0 };
+    countMap[row.matchId][row.prediction] = Number(row.count);
+    countMap[row.matchId].total += Number(row.count);
   }
+
+  // 3. Compute scores and batch update in ONE query using CASE
+  const updates = pending.map((row) => {
+    if (!row.winner) return null;
+    const matchCounts = countMap[row.matchId] ?? {};
+    const total = matchCounts.total ?? 1;
+    const outcomeCount = matchCounts[row.prediction] ?? 0;
+    const popularity = total > 0 ? Math.max(outcomeCount / total, 0.01) : 1;
+    const edgeScore = 1 / popularity;
+    const correct = row.prediction === row.winner;
+
+    return {
+      id: row.selectionId,
+      isCorrect: correct,
+      score: correct ? String(edgeScore) : "0",
+    };
+  }).filter(Boolean) as { id: string; isCorrect: boolean; score: string }[];
+
+  if (!updates.length) return;
+
+  // Batch update with a single SQL CASE statement
+  await db.execute(sql`
+    UPDATE selections SET
+      is_correct = CASE id
+        ${sql.join(updates.map(u => sql`WHEN ${u.id}::uuid THEN ${u.isCorrect}`), sql` `)}
+      END,
+      score = CASE id
+        ${sql.join(updates.map(u => sql`WHEN ${u.id}::uuid THEN ${u.score}::numeric`), sql` `)}
+      END,
+      updated_at = NOW()
+    WHERE id IN (${sql.join(updates.map(u => sql`${u.id}::uuid`), sql`, `)})
+  `);
 }
