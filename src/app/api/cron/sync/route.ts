@@ -4,6 +4,7 @@ import { checkMatchResults } from "@/app/actions/selections";
 import { db } from "@/db";
 import { matches } from "@/db/schema";
 import { lt, sql } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 
 const COMPETITION_IDS = [2021, 2002, 2019, 2014, 2015, 2001];
 
@@ -21,6 +22,7 @@ export async function GET(request: NextRequest) {
   );
 
    await checkMatchResults();
+   COMPETITION_IDS.forEach((id) => revalidateTag(`league-${id}`,'max'));
 
   return NextResponse.json({ ok: true });
 }

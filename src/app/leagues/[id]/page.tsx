@@ -5,6 +5,38 @@ import Image from "next/image";
 import MatchCard from "@/components/MatchCard";
 import { auth } from "@/auth";
 import { getTranslations } from "next-intl/server";
+import { unstable_cache } from "next/cache"; 
+
+const getLeagueMatches = (competitionId: number) =>
+  unstable_cache(
+    async () => {
+      const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
+      return db
+        .select()
+        .from(matches)
+        .where(
+          and(
+            eq(matches.competitionId, competitionId),
+            ne(matches.status, "FINISHED"),
+            gt(matches.utcDate, fiveMinutesFromNow)
+          )
+        )
+        .orderBy(matches.utcDate, matches.id);
+    },
+    [`league-matches-${competitionId}`],
+    { revalidate: 3600, tags: [`league-${competitionId}`] }
+  )();
+
+const getCompetition = (competitionId: number) =>
+  unstable_cache(
+    async () =>
+      db
+        .select()
+        .from(competitions)
+        .where(eq(competitions.id, competitionId)),
+    [`competition-${competitionId}`],
+    { revalidate: 86400 } 
+  )();
 
 export default async function LeagueMatchesPage({
   params,
@@ -15,22 +47,9 @@ export default async function LeagueMatchesPage({
   const competitionId = parseInt(id);
   const t = await getTranslations("leagues");
 
-  const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
-
-  // Run all 3 queries in parallel
   const [[competition], leagueMatches, session] = await Promise.all([
-    db.select().from(competitions).where(eq(competitions.id, competitionId)),
-    db
-      .select()
-      .from(matches)
-      .where(
-        and(
-          eq(matches.competitionId, competitionId),
-          ne(matches.status, "FINISHED"),
-          gt(matches.utcDate, fiveMinutesFromNow)
-        )
-      )
-      .orderBy(matches.utcDate, matches.id),
+    getCompetition(competitionId),
+    getLeagueMatches(competitionId),
     auth(),
   ]);
 
@@ -50,7 +69,6 @@ export default async function LeagueMatchesPage({
     userSelections.map((s) => [s.matchId, s.prediction])
   );
 
-  // leagueMatches is already filtered 
   const visibleMatchdays = [...new Set(leagueMatches.map((m) => m.matchday))].sort((a, b) => a - b);
   const firstVisible = visibleMatchdays[0] ?? null;
 
