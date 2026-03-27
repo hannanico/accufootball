@@ -17,12 +17,13 @@ export async function GET(request: NextRequest) {
   // Auto-cleanup matches older than 3 months
   await db.delete(matches).where(lt(matches.utcDate, sql`NOW() - INTERVAL '3 months'`));
 
-  await Promise.all(
-    COMPETITION_IDS.map((id) => syncCompetition(id))
-  );
+  for (const id of COMPETITION_IDS) {
+      await syncCompetition(id);
+      await new Promise((resolve) => setTimeout(resolve, 6000)); // 6s gap = ~10 req/min safe
+  }
 
-   await checkMatchResults();
-   COMPETITION_IDS.forEach((id) => revalidateTag(`league-${id}`,'max'));
+  await checkMatchResults();
+  COMPETITION_IDS.forEach((id) => revalidateTag(`league-${id}`, 'max'));
 
   return NextResponse.json({ ok: true });
 }
