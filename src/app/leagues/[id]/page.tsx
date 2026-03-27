@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { matches, competitions, selections } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, ne, gt } from "drizzle-orm";
 import Image from "next/image";
 import MatchCard from "@/components/MatchCard";
 import { auth } from "@/auth";
@@ -15,18 +15,25 @@ export default async function LeagueMatchesPage({
   const competitionId = parseInt(id);
   const t = await getTranslations("leagues");
 
-  const [competition] = await db
-    .select()
-    .from(competitions)
-    .where(eq(competitions.id, competitionId));
+  const fiveMinutesFromNow = new Date(Date.now() + 5 * 60 * 1000);
 
-  const leagueMatches = await db
-    .select()
-    .from(matches)
-    .where(eq(matches.competitionId, competitionId))
-    .orderBy(matches.utcDate, matches.id);
+  // Run all 3 queries in parallel
+  const [[competition], leagueMatches, session] = await Promise.all([
+    db.select().from(competitions).where(eq(competitions.id, competitionId)),
+    db
+      .select()
+      .from(matches)
+      .where(
+        and(
+          eq(matches.competitionId, competitionId),
+          ne(matches.status, "FINISHED"),
+          gt(matches.utcDate, fiveMinutesFromNow)
+        )
+      )
+      .orderBy(matches.utcDate, matches.id),
+    auth(),
+  ]);
 
-  const session = await auth();
   const userSelections = session?.user?.id
     ? await db
         .select()
@@ -43,22 +50,13 @@ export default async function LeagueMatchesPage({
     userSelections.map((s) => [s.matchId, s.prediction])
   );
 
-  const now = new Date();
-
-  // Filter out finished matches and matches within 5 minutes of kickoff
-  const visible = leagueMatches.filter((m) => {
-    const minutesUntilKickoff = (new Date(m.utcDate).getTime() - now.getTime()) / 1000 / 60;
-    return m.status !== "FINISHED" && minutesUntilKickoff > 5;
-  });
-
-  // Find the first matchday that actually has visible upcoming matches
-  const visibleMatchdays = [...new Set(visible.map((m) => m.matchday))].sort((a, b) => a - b);
+  // leagueMatches is already filtered 
+  const visibleMatchdays = [...new Set(leagueMatches.map((m) => m.matchday))].sort((a, b) => a - b);
   const firstVisible = visibleMatchdays[0] ?? null;
 
-  // Show first visible matchday + the next one
   const finalVisible = firstVisible
-    ? visible.filter((m) => m.matchday === firstVisible || m.matchday === firstVisible + 1)
-    : visible;
+    ? leagueMatches.filter((m) => m.matchday === firstVisible || m.matchday === firstVisible + 1)
+    : leagueMatches;
 
   const grouped = finalVisible.reduce((acc, match) => {
     const key = match.matchday;
