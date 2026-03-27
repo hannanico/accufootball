@@ -1,4 +1,4 @@
-import { syncCompetitionMatches, syncFinishedMatches } from "@/lib/syncMatches";
+import { syncCompetition } from "@/lib/syncMatches";
 import { NextResponse, NextRequest } from "next/server";
 import { db } from "@/db";
 import { matches } from "@/db/schema";
@@ -16,10 +16,7 @@ export async function GET(request: NextRequest) {
   await db.delete(matches).where(lt(matches.utcDate, sql`NOW() - INTERVAL '3 months'`));
 
   await Promise.all(
-    COMPETITION_IDS.flatMap((id) => [
-      syncCompetitionMatches(id),
-      syncFinishedMatches(id),
-    ])
+    COMPETITION_IDS.map((id) => syncCompetition(id))
   );
 
   return NextResponse.json({ ok: true });
