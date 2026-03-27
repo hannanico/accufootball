@@ -1,4 +1,4 @@
-import { pgTable, integer, text, timestamp, uuid, boolean } from "drizzle-orm/pg-core";
+import { pgTable, integer, text, timestamp, uuid, boolean, index } from "drizzle-orm/pg-core"; 
 import { numeric } from "drizzle-orm/pg-core";
 
 export const competitions = pgTable("competitions", {
@@ -22,13 +22,18 @@ export const matches = pgTable("matches", {
   awayTeamName: text("away_team_name").notNull(),
   awayTeamShort: text("away_team_short").notNull(),
   awayTeamCrest: text("away_team_crest").notNull(),
-  utcDate:     timestamp("utc_date",{ withTimezone: true }).notNull(),
-  status: text("status").notNull(),         // SCHEDULED | LIVE | FINISHED
+  utcDate: timestamp("utc_date", { withTimezone: true }).notNull(),
+  status: text("status").notNull(),
   homeScore: integer("home_score"),
   awayScore: integer("away_score"),
-  winner: text("winner"),                   // HOME_TEAM | DRAW | AWAY_TEAM | null
-  lastUpdated: timestamp("last_updated",{ withTimezone: true }).notNull()
-});
+  winner: text("winner"),
+  lastUpdated: timestamp("last_updated", { withTimezone: true }).notNull(),
+}, (table) => [
+  index("matches_utc_date_idx").on(table.utcDate),                       
+  index("matches_competition_id_idx").on(table.competitionId),           
+  index("matches_status_idx").on(table.status),                           
+  index("matches_competition_utc_idx").on(table.competitionId, table.utcDate), 
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -51,4 +56,8 @@ export const selections = pgTable("selections", {
   score: numeric("score", { precision: 10, scale: 4 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("selections_user_id_idx").on(table.userId),                       
+  index("selections_match_id_idx").on(table.matchId),                      
+  index("selections_user_competition_idx").on(table.userId, table.competitionId), 
+]);
