@@ -70,11 +70,8 @@ export default async function LeagueMatchesPage({
   );
 
   const visibleMatchdays = [...new Set(leagueMatches.map((m) => m.matchday))].sort((a, b) => a - b);
-  const firstVisible = visibleMatchdays[0] ?? null;
-
-  const finalVisible = firstVisible
-    ? leagueMatches.filter((m) => m.matchday === firstVisible || m.matchday === firstVisible + 1)
-    : leagueMatches;
+  const shownMatchdays = visibleMatchdays.slice(0, 2);
+  const finalVisible = leagueMatches.filter((m) => shownMatchdays.includes(m.matchday));
 
   const grouped = finalVisible.reduce((acc, match) => {
     const key = match.matchday;
