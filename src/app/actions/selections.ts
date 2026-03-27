@@ -107,14 +107,14 @@ export async function checkMatchResults() {
 
   // Batch update with a single SQL CASE statement
   await db.execute(sql`
-    UPDATE selections SET
-      is_correct = CASE id
-        ${sql.join(updates.map(u => sql`WHEN ${u.id}::uuid THEN ${u.isCorrect}`), sql` `)}
-      END,
-      score = CASE id
-        ${sql.join(updates.map(u => sql`WHEN ${u.id}::uuid THEN ${u.score}::numeric`), sql` `)}
-      END,
-      updated_at = NOW()
-    WHERE id IN (${sql.join(updates.map(u => sql`${u.id}::uuid`), sql`, `)})
-  `);
+  UPDATE selections SET
+    is_correct = CASE id
+      ${sql.join(updates.map(u => sql`WHEN ${u.id}::uuid THEN ${u.isCorrect}::boolean`), sql` `)}
+    END,
+    score = CASE id
+      ${sql.join(updates.map(u => sql`WHEN ${u.id}::uuid THEN ${u.score}::numeric`), sql` `)}
+    END,
+    updated_at = NOW()
+  WHERE id IN (${sql.join(updates.map(u => sql`${u.id}::uuid`), sql`, `)})
+`);
 }
